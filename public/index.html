@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Empréstimos - SENAI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center;">
+                <img src="images/Logos-SistemaFiepRGB_BRANCO_SENAI.png" alt="SENAI Logo" class="logo">
+                <h1 class="header-title">Sistema de Empréstimos</h1>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon" id="theme-icon"></i>
+                <span id="theme-text">Modo Escuro</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Container Principal -->
+    <div class="container">
+        <!-- Navegação por Abas -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('funcionarios')">
+                <i class="fas fa-users"></i> Funcionários
+            </button>
+            <button class="nav-tab" onclick="showTab('objetos')">
+                <i class="fas fa-box"></i> Objetos
+            </button>
+            <button class="nav-tab" onclick="showTab('emprestimos')">
+                <i class="fas fa-handshake"></i> Empréstimos
+            </button>
+            <button class="nav-tab" onclick="showTab('relatorios')">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </button>
+        </nav>
+
+        <!-- Alertas -->
+        <div id="alert-container"></div>
+
+        <!-- Aba Funcionários -->
+        <div id="funcionarios" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-users"></i> Gerenciar Funcionários
+                    </h2>
+                    <button class="btn btn-primary" onclick="showFuncionarioForm()">
+                        <i class="fas fa-plus"></i> Novo Funcionário
+                    </button>
+                </div>
+
+                <!-- Formulário de Funcionário -->
+                <div id="funcionario-form" class="form-section hidden">
+                    <h3 class="form-title">
+                        <i class="fas fa-user-plus"></i> <span id="funcionario-form-title">Cadastrar Funcionário</span>
+                    </h3>
+                    <form id="funcionario-form-element">
+                        <input type="hidden" id="funcionario-id">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="funcionario-nome">Nome Completo *</label>
+                                <input type="text" id="funcionario-nome" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="funcionario-matricula">Matrícula *</label>
+                                <input type="text" id="funcionario-matricula" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="funcionario-email">E-mail</label>
+                                <input type="email" id="funcionario-email" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="funcionario-telefone">Telefone</label>
+                                <input type="tel" id="funcionario-telefone" class="form-input">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelFuncionarioForm()">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Funcionários -->
+                <div class="search-bar">
+                    <input type="text" id="funcionario-search" class="search-input" placeholder="Buscar funcionários...">
+                    <button class="btn btn-secondary" onclick="searchFuncionarios()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Matrícula</th>
+                                <th>E-mail</th>
+                                <th>Telefone</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="funcionarios-list">
+                            <!-- Funcionários serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Objetos -->
+        <div id="objetos" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-box"></i> Gerenciar Objetos
+                    </h2>
+                    <button class="btn btn-primary" onclick="showObjetoForm()">
+                        <i class="fas fa-plus"></i> Novo Objeto
+                    </button>
+                </div>
+
+                <!-- Formulário de Objeto -->
+                <div id="objeto-form" class="form-section hidden">
+                    <h3 class="form-title">
+                        <i class="fas fa-box-open"></i> <span id="objeto-form-title">Cadastrar Objeto</span>
+                    </h3>
+                    <form id="objeto-form-element">
+                        <input type="hidden" id="objeto-id">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-nome">Nome do Objeto *</label>
+                                <input type="text" id="objeto-nome" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-codigo">Código *</label>
+                                <input type="text" id="objeto-codigo" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-categoria">Categoria</label>
+                                <input type="text" id="objeto-categoria" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-etiqueta">Etiqueta</label>
+                                <input type="text" id="objeto-etiqueta" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-tipo">Tipo de Equipamento *</label>
+                                <select id="objeto-tipo" class="form-select" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="fixo">Fixo</option>
+                                    <option value="movel">Móvel</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="objeto-condicao">Condição *</label>
+                                <select id="objeto-condicao" class="form-select" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="funcionando_com_controle">Funcionando com Controle</option>
+                                    <option value="funcionando_sem_controle">Funcionando sem Controle</option>
+                                    <option value="manutencao">Em Manutenção</option>
+                                    <option value="danificado">Danificado</option>
+                                    <option value="perdido">Perdido</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="objeto-descricao">Descrição</label>
+                            <textarea id="objeto-descricao" class="form-textarea" rows="3"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelObjetoForm()">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Busca de Objetos -->
+                <div class="search-bar">
+                    <input type="text" id="objeto-search" class="search-input" placeholder="Buscar objetos por nome, código, categoria ou etiqueta...">
+                    <button class="btn btn-secondary" onclick="searchObjetos()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadObjetos()">
+                        <i class="fas fa-list"></i> Todos
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Código</th>
+                                <th>Categoria</th>
+                                <th>Tipo</th>
+                                <th>Etiqueta</th>
+                                <th>Condição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="objetos-list">
+                            <!-- Objetos serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Empréstimos -->
+        <div id="emprestimos" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-handshake"></i> Gerenciar Empréstimos
+                    </h2>
+                    <button class="btn btn-primary" onclick="showEmprestimoForm()">
+                        <i class="fas fa-plus"></i> Novo Empréstimo
+                    </button>
+                </div>
+
+                <!-- Formulário de Empréstimo -->
+                <div id="emprestimo-form" class="form-section hidden">
+                    <h3 class="form-title">
+                        <i class="fas fa-handshake"></i> Registrar Empréstimo
+                    </h3>
+                    <form id="emprestimo-form-element">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="emprestimo-funcionario">Funcionário *</label>
+                                <select id="emprestimo-funcionario" class="form-select" required>
+                                    <option value="">Selecione um funcionário...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="emprestimo-objeto">Objeto *</label>
+                                <select id="emprestimo-objeto" class="form-select" required>
+                                    <option value="">Selecione um objeto...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="emprestimo-data-devolucao">Data Prevista de Devolução *</label>
+                                <input type="date" id="emprestimo-data-devolucao" class="form-input" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="emprestimo-observacoes">Observações</label>
+                            <textarea id="emprestimo-observacoes" class="form-textarea" rows="3"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Registrar Empréstimo
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelEmprestimoForm()">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Empréstimos -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Objeto</th>
+                                <th>Data Empréstimo</th>
+                                <th>Data Prev. Devolução</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emprestimos-list">
+                            <!-- Empréstimos serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Relatórios -->
+        <div id="relatorios" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-bar"></i> Relatórios
+                    </h2>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 class="card-title">
+                            <i class="fas fa-box"></i> Objetos por Status
+                        </h3>
+                        <div id="objetos-status-chart"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title">
+                            <i class="fas fa-clock"></i> Empréstimos Ativos
+                        </h3>
+                        <div id="emprestimos-ativos-info">
+                            <p>Carregando informações...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i> Empréstimos em Atraso
+                    </h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Funcionário</th>
+                                    <th>Objeto</th>
+                                    <th>Data Empréstimo</th>
+                                    <th>Data Prev. Devolução</th>
+                                    <th>Dias em Atraso</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emprestimos-atrasados-list">
+                                <!-- Empréstimos atrasados serão carregados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="confirm-title">Confirmar Ação</h3>
+            <p id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-action-btn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+
