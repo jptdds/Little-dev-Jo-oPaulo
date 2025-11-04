@@ -6,15 +6,12 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos
 app.use(express.static('public'));
 
-// Configuração da conexão com o banco de dados
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -22,7 +19,6 @@ const db = mysql.createConnection({
     database: 'senai_emprestimos'
 });
 
-// Conectar ao banco de dados
 db.connect((err) => {
     if (err) {
         console.error('Erro ao conectar com o banco de dados:', err);
@@ -31,14 +27,10 @@ db.connect((err) => {
     console.log('Conectado ao banco de dados MySQL');
 });
 
-// Rota de teste
 app.get('/', (req, res) => {
     res.json({ message: 'Sistema de Empréstimos SENAI - API funcionando!' });
 });
 
-// ===== ROTAS PARA FUNCIONÁRIOS =====
-
-// Listar todos os funcionários
 app.get('/api/funcionarios', (req, res) => {
     const query = 'SELECT * FROM funcionarios ORDER BY nome';
     db.query(query, (err, results) => {
@@ -51,7 +43,6 @@ app.get('/api/funcionarios', (req, res) => {
     });
 });
 
-// Buscar funcionário por ID
 app.get('/api/funcionarios/:id', (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM funcionarios WHERE id = ?';
@@ -69,7 +60,6 @@ app.get('/api/funcionarios/:id', (req, res) => {
     });
 });
 
-// Criar novo funcionário
 app.post('/api/funcionarios', (req, res) => {
     const { nome, matricula, email, telefone } = req.body;
     
@@ -96,7 +86,6 @@ app.post('/api/funcionarios', (req, res) => {
     });
 });
 
-// Atualizar funcionário
 app.put('/api/funcionarios/:id', (req, res) => {
     const { id } = req.params;
     const { nome, matricula, email, telefone } = req.body;
@@ -125,7 +114,6 @@ app.put('/api/funcionarios/:id', (req, res) => {
     });
 });
 
-// Deletar funcionário
 app.delete('/api/funcionarios/:id', (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM funcionarios WHERE id = ?';
@@ -143,9 +131,6 @@ app.delete('/api/funcionarios/:id', (req, res) => {
     });
 });
 
-// ===== ROTAS PARA OBJETOS =====
-
-// Listar todos os objetos
 app.get('/api/objetos', (req, res) => {
     const query = 'SELECT * FROM objetos ORDER BY nome';
     db.query(query, (err, results) => {
@@ -158,7 +143,6 @@ app.get('/api/objetos', (req, res) => {
     });
 });
 
-// Buscar objeto por ID
 app.get('/api/objetos/:id', (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM objetos WHERE id = ?';
@@ -176,7 +160,6 @@ app.get('/api/objetos/:id', (req, res) => {
     });
 });
 
-// Buscar objetos por termo de pesquisa
 app.get('/api/objetos/buscar/:termo', (req, res) => {
     const { termo } = req.params;
     const query = `
@@ -195,7 +178,6 @@ app.get('/api/objetos/buscar/:termo', (req, res) => {
     });
 });
 
-// Criar novo objeto
 app.post('/api/objetos', (req, res) => {
     const { nome, descricao, categoria, codigo, tipo_equipamento, etiqueta, condicao } = req.body;
     
@@ -225,7 +207,6 @@ app.post('/api/objetos', (req, res) => {
     });
 });
 
-// Atualizar objeto
 app.put('/api/objetos/:id', (req, res) => {
     const { id } = req.params;
     const { nome, descricao, categoria, codigo, status, tipo_equipamento, etiqueta, condicao } = req.body;
@@ -258,7 +239,6 @@ app.put('/api/objetos/:id', (req, res) => {
     });
 });
 
-// Deletar objeto
 app.delete('/api/objetos/:id', (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM objetos WHERE id = ?';
@@ -276,9 +256,6 @@ app.delete('/api/objetos/:id', (req, res) => {
     });
 });
 
-// ===== ROTAS PARA EMPRÉSTIMOS =====
-
-// Listar todos os empréstimos
 app.get('/api/emprestimos', (req, res) => {
     const query = `
         SELECT e.*, f.nome as nome_funcionario, f.matricula, o.nome as nome_objeto, o.codigo
@@ -296,8 +273,6 @@ app.get('/api/emprestimos', (req, res) => {
         res.json(results);
     });
 });
-
-// Buscar empréstimo por ID
 app.get('/api/emprestimos/:id', (req, res) => {
     const { id } = req.params;
     const query = `
@@ -321,7 +296,6 @@ app.get('/api/emprestimos/:id', (req, res) => {
     });
 });
 
-// Criar novo empréstimo
 app.post('/api/emprestimos', (req, res) => {
     const { id_funcionario, id_objeto, data_devolucao_prevista, observacoes } = req.body;
     
@@ -330,7 +304,6 @@ app.post('/api/emprestimos', (req, res) => {
         return;
     }
 
-    // Primeiro, verificar se o objeto está disponível
     const checkQuery = 'SELECT status FROM objetos WHERE id = ?';
     db.query(checkQuery, [id_objeto], (err, results) => {
         if (err) {
@@ -348,8 +321,6 @@ app.post('/api/emprestimos', (req, res) => {
             res.status(400).json({ error: 'Objeto não está disponível para empréstimo' });
             return;
         }
-
-        // Criar o empréstimo
         const insertQuery = `
             INSERT INTO emprestimos (id_funcionario, id_objeto, data_devolucao_prevista, observacoes) 
             VALUES (?, ?, ?, ?)
@@ -361,7 +332,6 @@ app.post('/api/emprestimos', (req, res) => {
                 return;
             }
 
-            // Atualizar o status do objeto para 'emprestado'
             const updateQuery = 'UPDATE objetos SET status = "emprestado" WHERE id = ?';
             db.query(updateQuery, [id_objeto], (err) => {
                 if (err) {
@@ -379,12 +349,10 @@ app.post('/api/emprestimos', (req, res) => {
     });
 });
 
-// Registrar devolução
 app.put('/api/emprestimos/:id/devolver', (req, res) => {
     const { id } = req.params;
     const { observacoes } = req.body;
 
-    // Buscar informações do empréstimo
     const selectQuery = 'SELECT id_objeto FROM emprestimos WHERE id = ? AND status = "emprestado"';
     db.query(selectQuery, [id], (err, results) => {
         if (err) {
@@ -400,7 +368,6 @@ app.put('/api/emprestimos/:id/devolver', (req, res) => {
 
         const id_objeto = results[0].id_objeto;
 
-        // Atualizar o empréstimo
         const updateEmprestimoQuery = `
             UPDATE emprestimos 
             SET data_devolucao_realizada = CURRENT_TIMESTAMP, status = "devolvido", observacoes = CONCAT(IFNULL(observacoes, ''), ?, ' - Devolvido em: ', NOW())
@@ -413,7 +380,6 @@ app.put('/api/emprestimos/:id/devolver', (req, res) => {
                 return;
             }
 
-            // Atualizar o status do objeto para 'disponivel'
             const updateObjetoQuery = 'UPDATE objetos SET status = "disponivel" WHERE id = ?';
             db.query(updateObjetoQuery, [id_objeto], (err) => {
                 if (err) {
@@ -428,7 +394,6 @@ app.put('/api/emprestimos/:id/devolver', (req, res) => {
     });
 });
 
-// Iniciar o servidor
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
